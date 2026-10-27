@@ -121,11 +121,11 @@ def handle_login_item(json_item):
     else:
         if fields:
             key, val = list(fields.items())[0]
-            log.warning(f"{json_item['name']}: no password found, putting field {key} on first line")
+            log.warning(f"id '{json_item.get('id')}', name '{json_item.get('name')}': no password found, putting field {key} on first line")
             content += f"{key}: {val}\n"
             del fields[key]
         else:
-            log.warning(f"no password found")
+            log.warning(f"id '{json_item.get('id')}', name '{json_item.get('name')}': no password found")
 
     if 'username' in login and login['username']:
         content += "username: " + login['username'] + "\n"
@@ -312,7 +312,9 @@ def main():
     j_items = j['items']
 
     store=passpy.Store(gpg_bin=args.gpg)
+    allpaths=[]
     for i in j_items:
+        log.info(f"Handling key id '{i.get('id')}', name: '{i.get('name')}'")
         name = i['name']
         if args.detox:
             name = detox(name)
@@ -320,6 +322,8 @@ def main():
             log.warning(f"Bitwarden key id {i.get('id')} has poor name {name}, using id instead.")
             name = i['id']
         keypath = "/".join([args.path, name])
+        keypath = make_free_identifier(keypath, allpaths)
+        allpaths.append(keypath)
         log.info(f"{i['name']} → {keypath}")
         try:
             store.get_key(keypath)
