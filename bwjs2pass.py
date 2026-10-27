@@ -316,6 +316,9 @@ def main():
         name = i['name']
         if args.detox:
             name = detox(name)
+        if re.search(r'^[-\s]*$', name) and i.get('id'):
+            log.warning(f"Bitwarden key id {i.get('id')} has poor name {name}, using id instead.")
+            name = i['id']
         keypath = "/".join([args.path, name])
         log.info(f"{i['name']} → {keypath}")
         try:
