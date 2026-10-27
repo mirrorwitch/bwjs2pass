@@ -7,8 +7,9 @@ import unicodedata
 import re
 import errno
 import locale
+import math
 from datetime import datetime, timezone
-from collections import OrderedDict 
+from collections import OrderedDict
 
 # monkey patch gnupg encoding so passpy doesn't force English/latin-1
 import gnupg
@@ -74,9 +75,9 @@ def merge_extra_fields(json_item):
     - If it has the 'notes' field, it will be under 'notes' in the dict.
     - If custom fields has a 'notes' key, the latter will be renamed to 'custom-notes'.
       """
-    
+
     # we preserve the first custom field as the more likely alternative to a
-    # missing password 
+    # missing password
     merged = OrderedDict()
     fields = json_item.get('fields')
     if fields:
@@ -229,6 +230,15 @@ def get_timestamps(json_item):
     return content
 
 
+def truncate(long_string, max_len, ellipsis="…"):
+    '''Turns overly long strings into like 'start-of-the-string…end-of-string'. '''
+    if len(long_string) <= max_len:
+        return(long_string)
+    else:
+        one_side = math.floor((max_len-len(ellipsis))/2)
+        return(long_string[0:one_side] + ellipsis + long_string[-one_side:])
+
+
 def main():
     locale.setlocale(locale.LC_ALL, '')
 
@@ -301,7 +311,7 @@ def main():
     j = json.load(f)
     j_items = j['items']
 
-    store=passpy.Store(gpg_bin=args.gpg) 
+    store=passpy.Store(gpg_bin=args.gpg)
     for i in j_items:
         name = i['name']
         if args.detox:
@@ -355,8 +365,9 @@ def main():
                 except OSError as e:
                     if e.errno == errno.ENAMETOOLONG:
                         log.warning(f"Bitwarden name too long, truncating (ID: {i.get('id')})")
-                        keypath = keypath[0:33] + '...' + keypath[-33:]
-                        log.warning(f"New name: {keypath}")
+                        newname = truncate(name, 51, '...')
+                        keypath = "/".join([args.path, newname])
+                        log.warning(f"Truncated path is: {keypath}")
                         content += f"original-name: {i.get('name')}"
                         store.set_key(keypath, content, args.force)
 
