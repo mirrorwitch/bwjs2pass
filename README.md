@@ -2,7 +2,7 @@ bwjs2pass
 =========
 
 Unrefined importer of Bitwarden JSON exports into pass(1), the standard unix
-password manager.  I did this in one day because 'pass-import bitwarden" wasn't
+password manager.  I did this in one day because `pass-import bitwarden` wasn't
 working for my JSON exports, and the CSV exports don't have custom
 fields/notes/etc., and I was impatient.  It should be basically functional, but
 it's untested and hacky.
