@@ -15,12 +15,16 @@ it's untested and hacky.
  - Indents multi-lines notes.
  - Optionally preserves Bitwarden timestamps (`--timestamps`) or IDs (`--id`).
  - Optionally make entry names a bit more unixy for the LCI (`--detox`).  For
-   example, `name: " Capitalised Entry  / my test  "` will become file
-   `capitalised-entry/my-test`.
+   example, `name: " Capitalised Entry (2) / my test  "` will become file
+   `capitalised-entry-2/my-test`.
    - This detox feature pointedly will *not* reduce Unicode to ASCII nor erase
      non-English characters.  This is intentional.  (It will normalise Unicode
-     to NFKD.) It also doesn't do much for punctuation; one can fix that later
-     with sed.
+     to NFKD.) It also isn't very sophisticated for punctuation; one can always
+     fix that later with sed.
+   - bwjs2pass tries to use Bitwarden "name" as the file path, but will append
+     a digit to avoid overwriting entries with identical names, and will
+     default to Bitwarden ID when the name is empty or unworkable (e.g. white
+     spaces only).
 
 ## Missing features
 

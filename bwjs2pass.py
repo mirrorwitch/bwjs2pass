@@ -47,7 +47,8 @@ def detox(identifier):
     identifier = identifier.lower()
     components = identifier.split("/")
     components = map(lambda c: c.strip(), components)
-    components = map(lambda c: re.sub(r'\s+', '-', c), components)
+    components = map(lambda c: re.sub(r'[\s+&$^\\\'"!()`#*]+', '-', c), components)
+    components = map(lambda c: re.sub(r'-*@-*', '@', c), components)
     return "/".join(components)
 
 def make_free_identifier(identifier, collection):
@@ -317,7 +318,10 @@ def main():
         log.info(f"Handling key id '{i.get('id')}', name: '{i.get('name')}'")
         name = i['name']
         if args.detox:
-            name = detox(name)
+            newname = detox(name)
+            if newname != name:
+                log.debug(f"Detox: {name} → {newname}")
+                name = newname
         if re.search(r'^[-\s]*$', name) and i.get('id'):
             log.warning(f"Bitwarden key id {i.get('id')} has poor name {name}, using id instead.")
             name = i['id']
